@@ -3,14 +3,11 @@
 
 </canvas>
 
-<script> </script> 
-
 <script> 
 
-var check = 1;
 var prevpix = [0,0,0,0];
 
-function mandelIter(cx, cy, maxIter) {
+function mandelIter(cx, cy, maxIter) { //iterates 
   var x = 0.0;
   var y = 0.0;
   var xx = 0;
@@ -33,19 +30,19 @@ function mandelIter(cx, cy, maxIter) {
   return maxIter - i;
 }
  
-function mandelbrot(canvas, xmin, xmax, ymin, ymax, iterations) {
-  var width = 800;
-  var height = 600;
+function mandelbrot(canvas, xmin, xmax, ymin, ymax, iterations) { //main function
+  var width = 800; //width of canvas
+  var height = 600; //height of canvas
 
   var img = ctx.getImageData(0, 0, width, height);
   var pix = img.data;
-  var NewIter = 200;
+  var NewIter = 200; //number of iterations preformed within set
   var ppos = 0;
-  for (var iy = 0; iy < height; iy += 1) {
+  for (var iy = 0; iy < height; iy += 1) { //generates image
     for (var ix = 0; ix < width; ix += 1) {
       var x = xmin + (xmax - xmin) * ix / (width - 1);
       var y = ymin + (ymax - ymin) * iy / (height - 1);
-      if(prevpix[1] > iterations && prevpix[2] > iterations && prevpix[3] > iterations || 
+      if(prevpix[1] > iterations && prevpix[2] > iterations && prevpix[3] > iterations || //checks if within the set
       prevpix[1] > NewIter && prevpix[2] > NewIter && prevpix[3] > NewIter){
         var i = mandelIter(x/Math.pow(2 ,scale-1)-dragX, y/(Math.pow(2 ,scale-1))-dragY, NewIter);    
       }else{
@@ -56,26 +53,26 @@ function mandelbrot(canvas, xmin, xmax, ymin, ymax, iterations) {
       prevpix[1] = prevpix[0];
       prevpix[0] = i;
  
-      if (i > NewIter) {
+      if (i > NewIter) { //generates colours
         pix[ppos++] = 0;
         pix[ppos++] = 0;
         pix[ppos++] = 0;
       } else {
         var c = 3 * Math.log(i) / Math.log(iterations - 1.0);
  
-        if (c < 1) {
-          pix[ppos++] = 255 * c;
-          pix[ppos++] = 0;
-          pix[ppos++] = 0;
+        if (c < 1) { //main colour
+          pix[ppos++] = 255 * c; //red
+          pix[ppos++] = 0; //green
+          pix[ppos++] = 0; //blue
         }
-        else if ( c < 2 ) {
-          pix[ppos++] = 255;
-          pix[ppos++] = 255 * (c - 1);
-          pix[ppos++] = 0;
-        } else {
-          pix[ppos++] = 255;
-          pix[ppos++] = 255;
-          pix[ppos++] = 255 * (c - 2);
+        else if ( c < 2 ) { //secondary colour
+          pix[ppos++] = 255; //red
+          pix[ppos++] = 255 * (c - 1); //green
+          pix[ppos++] = 0; //blue 
+       } else { //tertiary colour
+          pix[ppos++] = 255; //red
+          pix[ppos++] = 255; //green
+          pix[ppos++] = 255 * (c - 2); //blue
         }
       }
       pix[ppos++] = 255;
@@ -84,7 +81,7 @@ function mandelbrot(canvas, xmin, xmax, ymin, ymax, iterations) {
   ctx.putImageData(img, 0, 0);
 }
 
-function move(event) {
+function move(event) { //controls movement
 
   dragX += (-1*(event.pageX-400) - ((event.pageX-400)*-0.999))/(Math.pow(2 ,scale));
   dragY += (-1*(event.pageY-300) - ((event.pageY-300)*-0.999))/(Math.pow(2 ,scale));
@@ -94,9 +91,9 @@ function move(event) {
   mandelbrot(canvas, -2, 1, -1, 1, 1000+Math.round(scale*scale*5));
 }
 
-function scroll(event) {
+function scroll(event) { //controls scroll
 
-  scale += event.deltaY * -0.001;
+  scale += event.deltaY * -0.001; //scrollspeed
 
   document.body.insertBefore(canvas, document.body.childNodes[0]);
 
@@ -109,8 +106,8 @@ let dragY = 0;
 let scale = 1;
 var canvas = document.getElementById("myCanvas");
 var ctx = canvas.getContext('2d');
-canvas.width = 800;
-canvas.height = 600;
+canvas.width = 800;  //width of canvas
+canvas.height = 600; //height of canvas
 canvas.style.width = 800;
 canvas.style.height = 590;
 window.onwheel = scroll;
