@@ -55,9 +55,8 @@
 </div>
 </div>
 <script> 
-//flyttade alla variabler till toppen, underlättar om allt deklareras innan någon faktisk kod körs
 
-//Denna kod översätter reglage & knappar till variabler (CSS -> JS)
+//Translates buttons and sliders (CSS -> JS)
 var Main_RGB = 1;
 var Bi_RGB = 2;
 var Tri_RGB = 3;
@@ -90,7 +89,7 @@ canvas.height = 600;
 canvas.style.width = 800;
 canvas.style.height = 600;
 
-function mandelIter(cx, cy, maxIter) {//definierar varje koordinat och itererar sedan genom dem för att se ifall att de exploderar mot oändligheten
+function mandelIter(cx, cy, maxIter) {//iterates over each coordinate
   var x = 0.0;
   var y = 0.0;
   var xx = 0;
@@ -98,7 +97,7 @@ function mandelIter(cx, cy, maxIter) {//definierar varje koordinat och itererar 
   var xy = 0;
 	
   var i = maxIter;
-  //denna loop körs så länge summan av den reella och imaginära komponenten förblir mindre än 4 (om de växer vidare ses de som exploderande
+  //the following loop iterates over the imaginary and real components until either is greater than for, if that becomes true they are treated as exploding to infinity
   while (i-- && i > -1 && xx + yy <= 4) {
     xy = x * y;
     xx = x * x;
@@ -110,17 +109,17 @@ function mandelIter(cx, cy, maxIter) {//definierar varje koordinat och itererar 
   return maxIter - i;
 }
  
-function mandelbrot(canvas, xmin, xmax, ymin, ymax, iterations) { //den huvudsakliga funktionen
+function mandelbrot(canvas, xmin, xmax, ymin, ymax, iterations) { //the main function
   var width = 800;
-  var height = 600;//bildupplösningen
+  var height = 600;//resolution
 
-  var img = ctx.getImageData(0, 0, width, height);//definierar bilden
+  var img = ctx.getImageData(0, 0, width, height);//image definition
   var pix = img.data;
   var NewIter = NI_val;
   iterations += Math.round(scale*scale*5);
   var ppos = 0;
   
-  for (var iy = 0; iy < height; iy += 1) {//itererar genom varje pixel i bilden
+  for (var iy = 0; iy < height; iy += 1) {//iterates through each pixel
     for (var ix = 0; ix < width; ix += 1) {
       var x = (xmin + (xmax - xmin) * ix / (width - 1))/Math.pow(2 ,scale-1)-dragX;
 	  //minsta x + (Totalt antal x-pixlar * antar kollade x-pixlar / hela bredden)
@@ -128,85 +127,85 @@ function mandelbrot(canvas, xmin, xmax, ymin, ymax, iterations) { //den huvudsak
       
 	  if(prevpix[1] > iterations && prevpix[2] > iterations && prevpix[3] > iterations || 
 		 prevpix[1] > NewIter && prevpix[2] > NewIter && prevpix[3] > NewIter){
-	    var i = mandelIter(x, y, NewIter); //om de föregående 3 pixlarna var svarta, byt till ett mindre antal iterationer		
+	    var i = mandelIter(x, y, NewIter); //if the previous three pixels were black, switch to a lower iteration count		
 	  }else{
 		var i = mandelIter(x, y, iterations);
 	  }
 	  
-	  prevpix[3] = prevpix[2]; //uppdatera värdet på de senaste tre pixlarna
+	  prevpix[3] = prevpix[2]; //update the last three pixel values
 	  prevpix[2] = prevpix[1];
 	  prevpix[1] = prevpix[0];
 	  prevpix[0] = i;
 	  
-	  //Denna kod översätter koden tillbaka till färger   
-      if (i > NewIter) { //om antalet iterationer (i) är större än max
+	  //this translates values to colours   
+      if (i > NewIter) { //if the number of iterations preformed (i) is greater than the max
         pix[ppos++] = SETR_val;
-        pix[ppos++] = SETG_val;//då är mängden färgad enligt de insatta värdena
+        pix[ppos++] = SETG_val;//the mandelbrot set is coloured according to assigned values
         pix[ppos++] = SETB_val;
       } else {
         var c = 3 * Math.log(i) / Math.log(iterations - 1.0);
-			if (c < 1) {//om  c = 3*lg(i)/lg(imax-1) < 1: färga huvudfärg
+			if (c < 1) {//if  c = 3*lg(i)/lg(imax-1) < 1: colour main colour
 			switch(Main_RGB){
 			  case 1:
-				pix[ppos++] = R_val * c;//huvudfärgen är röd
+				pix[ppos++] = R_val * c;//main colour is red
 				pix[ppos++] = 0;
 				pix[ppos++] = 0;
 				break;
 			  case 2:
 				pix[ppos++] = 0;
-				pix[ppos++] = G_val * c;//huvudfärgen är grön
+				pix[ppos++] = G_val * c;//main colour is green
 				pix[ppos++] = 0;
 				break;
 			  case 3:
 				pix[ppos++] = 0;
 				pix[ppos++] = 0;
-				pix[ppos++] = B_val * c;//huvudfärgen är blå
+				pix[ppos++] = B_val * c;//main colour is blue
 				break;
 			  }
-			}else if ( c < 2 ) {//om c < 2 färga Bi-färgen
+			}else if ( c < 2 ) {//if c < 2 colour secondary colour
 		 	switch (Bi_RGB){
 				case 1:
-					pix[ppos++] = R_val * (c - 1);//Bi-färgen är röd blandad med blå
+					pix[ppos++] = R_val * (c - 1);//secondary is red mixed with blue
 					pix[ppos++] = 0;
 					pix[ppos++] = B_val;
 					break;
 				case 2:
-					pix[ppos++] = R_val;//Bi-färgen är grön blandad med röd
+					pix[ppos++] = R_val;//secondary is red mixed with green
 					pix[ppos++] = G_val * (c - 1);
 					pix[ppos++] = 0;
 					break;
 				case 3:
-					pix[ppos++] = 0;//Bi-färgen är blå blandad med grön
+					pix[ppos++] = 0;//secondary is blue mixed with green
 					pix[ppos++] = G_val;
 					pix[ppos++] = B_val * (c - 1);
 					break;
 				}
-			} else {// om c är något annat
+			} else {// else colour tertiary colour
 				switch (Tri_RGB){
 				case 1:
-					pix[ppos++] = R_val * (c - 2);//blanda alla färger men huvudsakligen rött
+					pix[ppos++] = R_val * (c - 2);//mix all but primarily red
 					pix[ppos++] = G_val;
 					pix[ppos++] = B_val;
 					break;
 				case 2:
-					pix[ppos++] = R_val;//blanda alla färger men huvudsakligen grönt
+					pix[ppos++] = R_val;//mix all but primarily green
 					pix[ppos++] = G_val * (c - 2);
 					pix[ppos++] = B_val;
 					break;
 				case 3:
-					pix[ppos++] = R_val;//blanda alla färger men huvudsakligen blått
+					pix[ppos++] = R_val;//mix all but primarily blue
 					pix[ppos++] = G_val;
 					pix[ppos++] = B_val * (c - 2);
 					break;
 				}
 			}
       }
-      pix[ppos++] = 255;//denna kod definierar genomskinligheten
+      pix[ppos++] = 255;//set transparency
     }
   }
-  ctx.putImageData(img, 0, 0);//ritar ut programmet
+  ctx.putImageData(img, 0, 0);//draws the image
   
-  switch (Cursor){//Tar bort och sätter in den lilla vita rutan
+  switch (Cursor){//paints the cursor
 		case true:
 			ctx.fillStyle = '#FFFFFF';
 			ctx.fillRect(width/2+130, height/2-5, 10, 10); 
@@ -219,24 +218,24 @@ function mandelbrot(canvas, xmin, xmax, ymin, ymax, iterations) { //den huvudsak
 let dragX = 0;
 let dragY = 0;
 
-function move(event) {//Bestämmer hur mandelbrotsmängden flyttas runt
+function move(event) {//controls motion
   dragX += (-1*(event.pageX-535) - ((event.pageX-535)*-0.999))/(Math.pow(2 ,scale));
   dragY += (-1*(event.pageY-300) - ((event.pageY-300)*-0.999))/(Math.pow(2 ,scale));
 
   document.body.insertBefore(canvas, document.body.childNodes[0]);
-  mandelbrot(canvas, -4, 2, -2, 2, 1000);
+  mandelbrot(canvas, -4, 2, -2, 2, 1000); //draws a new image
 }
 
 let scale = 1;
 
-function scroll(event) {//denna funktion kallas när mushjulet/motsvarande snurrar
-  scale += event.deltaY * -(SENS_val*0.001);//detta ökar hur snabbt programmet zoomar allt eftersom större djup nås
+function scroll(event) {//controls scroll
+  scale += event.deltaY * -(SENS_val*0.001);//control zoom speed
   document.body.insertBefore(canvas, document.body.childNodes[0]);
-  //ersätter basvärden med nya värden
-  mandelbrot(canvas, -4, 2, -2, 2, 1000); //ritar en ny bild
+  
+  mandelbrot(canvas, -4, 2, -2, 2, 1000); //draws a new image
 }
 
-document.getElementById("settings").onclick = function SETTINGS_update(){//Sätter ut förändringarna som gjorts i CSS
+document.getElementById("settings").onclick = function SETTINGS_update(){//Controls changes made in the GUI
 	SETR_val = SETR_holder.value;
 	SETG_val = SETG_holder.value;
 	SETB_val = SETB_holder.value;
@@ -248,7 +247,7 @@ document.getElementById("settings").onclick = function SETTINGS_update(){//Sätt
 	mandelbrot(canvas, -4, 2, -2, 2, 1000);
 }
 
-document.getElementById("cursor").onclick = function ButtonToggle(){//Gör samma sak fast för den vita rutan
+document.getElementById("cursor").onclick = function ButtonToggle(){//Controls cursor visibility
 	switch (Cursor){
 		case true:
 			Cursor = false; 
@@ -259,9 +258,7 @@ document.getElementById("cursor").onclick = function ButtonToggle(){//Gör samma
 	}
 }
 
-document.getElementById("myCanvas").onwheel = scroll;//Exekiverar scroll-funktionen när musen är över mandelbrotsmängden
-document.getElementById("myCanvas").onmousedown = move;//Exekiverar move-funktionen när musen är över mandelbrotsmängden
-
+document.getElementById("myCanvas").onwheel = scroll;//Executes scroll function
+document.getElementById("myCanvas").onmousedown = move;//executes move function
 mandelbrot(canvas, -4, 2, -2, 2, 1000);
-//TWFkZSBieSBTYW0=pSGcTgrBxY2b4p7wtBHTgqAeZFLVfuc9DNENGccZgUeheTXmdGQ+fDDO8bh5HzrPv/nIymvW+ynLWTUMF2TTI4EnlVEPFBow73fubNkyY4eKLytaekwsbC6OQAbGTKsw1TKn8o3ZQ2UQg9s0IFO98bQt+XBHyDU5lX5Fue8wqcM=
 </script>
