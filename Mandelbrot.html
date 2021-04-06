@@ -1,0 +1,121 @@
+
+<canvas id='myCanvas'>
+
+</canvas>
+
+<script> </script> 
+
+<script> 
+
+var check = 1;
+var prevpix = [0,0,0,0];
+
+function mandelIter(cx, cy, maxIter) {
+  var x = 0.0;
+  var y = 0.0;
+  var xx = 0;
+  var yy = 0;
+  var xy = 0;
+
+
+ 
+  var i = maxIter;
+  while (i-- && xx + yy <= 4) {
+    xy = x * y;
+    xx = x * x;
+    yy = y * y;
+    x = xx - yy + cx;
+    y = xy + xy + cy;
+  }
+  if (maxIter - i) {
+
+  }
+  return maxIter - i;
+}
+ 
+function mandelbrot(canvas, xmin, xmax, ymin, ymax, iterations) {
+  var width = 800;
+  var height = 600;
+
+  var img = ctx.getImageData(0, 0, width, height);
+  var pix = img.data;
+  var NewIter = 200;
+  var ppos = 0;
+  for (var iy = 0; iy < height; iy += 1) {
+    for (var ix = 0; ix < width; ix += 1) {
+      var x = xmin + (xmax - xmin) * ix / (width - 1);
+      var y = ymin + (ymax - ymin) * iy / (height - 1);
+      if(prevpix[1] > iterations && prevpix[2] > iterations && prevpix[3] > iterations || 
+      prevpix[1] > NewIter && prevpix[2] > NewIter && prevpix[3] > NewIter){
+        var i = mandelIter(x/Math.pow(2 ,scale-1)-dragX, y/(Math.pow(2 ,scale-1))-dragY, NewIter);    
+      }else{
+        var i = mandelIter(x/Math.pow(2 ,scale-1)-dragX, y/(Math.pow(2 ,scale-1))-dragY, iterations);
+      }
+      prevpix[3] = prevpix[2];
+      prevpix[2] = prevpix[1];
+      prevpix[1] = prevpix[0];
+      prevpix[0] = i;
+ 
+      if (i > NewIter) {
+        pix[ppos++] = 0;
+        pix[ppos++] = 0;
+        pix[ppos++] = 0;
+      } else {
+        var c = 3 * Math.log(i) / Math.log(iterations - 1.0);
+ 
+        if (c < 1) {
+          pix[ppos++] = 255 * c;
+          pix[ppos++] = 0;
+          pix[ppos++] = 0;
+        }
+        else if ( c < 2 ) {
+          pix[ppos++] = 255;
+          pix[ppos++] = 255 * (c - 1);
+          pix[ppos++] = 0;
+        } else {
+          pix[ppos++] = 255;
+          pix[ppos++] = 255;
+          pix[ppos++] = 255 * (c - 2);
+        }
+      }
+      pix[ppos++] = 255;
+    }
+  }
+  ctx.putImageData(img, 0, 0);
+}
+
+function move(event) {
+
+  dragX += (-1*(event.pageX-400) - ((event.pageX-400)*-0.999))/(Math.pow(2 ,scale));
+  dragY += (-1*(event.pageY-300) - ((event.pageY-300)*-0.999))/(Math.pow(2 ,scale));
+
+  document.body.insertBefore(canvas, document.body.childNodes[0]);
+
+  mandelbrot(canvas, -2, 1, -1, 1, 1000+Math.round(scale*scale*5));
+}
+
+function scroll(event) {
+
+  scale += event.deltaY * -0.001;
+
+  document.body.insertBefore(canvas, document.body.childNodes[0]);
+
+  mandelbrot(canvas, -2, 1, -1, 1, 1000+Math.round(scale*scale*5));
+}
+
+let dragX = 0;
+let dragY = 0;
+
+let scale = 1;
+var canvas = document.getElementById("myCanvas");
+var ctx = canvas.getContext('2d');
+canvas.width = 800;
+canvas.height = 600;
+canvas.style.width = 800;
+canvas.style.height = 590;
+window.onwheel = scroll;
+document.getElementById("myCanvas").onmousedown = move;
+
+mandelbrot(canvas, -2, 1, -1, 1, 1000);
+
+</script>
